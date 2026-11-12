@@ -69,6 +69,17 @@ public class PersonaMapperMaria {
 		return person;
 	}
 
+	// Sin estudios ni teléfonos: lo usan los mappers hijos para evitar recursión infinita
+	public Person fromAdapterToDomainBasico(PersonaEntity personaEntity) {
+		Person person = new Person();
+		person.setIdentification(personaEntity.getCc());
+		person.setFirstName(personaEntity.getNombre());
+		person.setLastName(personaEntity.getApellido());
+		person.setGender(validateGender(personaEntity.getGenero()));
+		person.setAge(validateAge(personaEntity.getEdad()));
+		return person;
+	}
+
 	private @NonNull Gender validateGender(Character genero) {
 		return genero == 'F' ? Gender.FEMALE : genero == 'M' ? Gender.MALE : Gender.OTHER;
 	}

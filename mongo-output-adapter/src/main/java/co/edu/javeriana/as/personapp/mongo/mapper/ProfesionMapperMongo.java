@@ -46,6 +46,15 @@ public class ProfesionMapperMongo {
 		return profession;
 	}
 
+	// Sin estudios: lo usan los estudios para evitar recursión infinita
+	public Profession fromAdapterToDomainBasico(ProfesionDocument profesionDocument) {
+		Profession profession = new Profession();
+		profession.setIdentification(profesionDocument.getId());
+		profession.setName(profesionDocument.getNom());
+		profession.setDescription(validateDescription(profesionDocument.getDes()));
+		return profession;
+	}
+
 	private String validateDescription(String des) {
 		return des != null ? des : "";
 	}

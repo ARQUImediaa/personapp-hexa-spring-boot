@@ -1,5 +1,6 @@
 package co.edu.javeriana.as.personapp.mariadb.mapper;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
@@ -7,6 +8,9 @@ import java.util.Date;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import co.edu.javeriana.as.personapp.common.annotations.Mapper;
+import co.edu.javeriana.as.personapp.domain.Gender;
+import co.edu.javeriana.as.personapp.domain.Person;
+import co.edu.javeriana.as.personapp.domain.Profession;
 import co.edu.javeriana.as.personapp.domain.Study;
 import co.edu.javeriana.as.personapp.mariadb.entity.EstudiosEntity;
 import co.edu.javeriana.as.personapp.mariadb.entity.EstudiosEntityPK;
@@ -43,15 +47,21 @@ public class EstudiosMapperMaria {
 
 	public Study fromAdapterToDomain(EstudiosEntity estudiosEntity) {
 		Study study = new Study();
-		study.setPerson(personaMapperMaria.fromAdapterToDomain(estudiosEntity.getPersona()));
-		study.setProfession(profesionMapperMaria.fromAdapterToDomain(estudiosEntity.getProfesion()));
+		// Tras un save, JPA no rellena persona/profesion: se reconstruyen con la clave compuesta
+		study.setPerson(estudiosEntity.getPersona() != null
+				? personaMapperMaria.fromAdapterToDomainBasico(estudiosEntity.getPersona())
+				: new Person(estudiosEntity.getEstudiosPK().getCcPer(), "", "", Gender.OTHER));
+		study.setProfession(estudiosEntity.getProfesion() != null
+				? profesionMapperMaria.fromAdapterToDomainBasico(estudiosEntity.getProfesion())
+				: new Profession(estudiosEntity.getEstudiosPK().getIdProf(), ""));
 		study.setGraduationDate(validateGraduationDate(estudiosEntity.getFecha()));
 		study.setUniversityName(validateUniversityName(estudiosEntity.getUniver()));
-		return null;
+		return study;
 	}
 
 	private LocalDate validateGraduationDate(Date fecha) {
-		return fecha != null ? fecha.toInstant().atZone(ZoneId.systemDefault()).toLocalDate() : null;
+		// Hibernate entrega java.sql.Date, cuyo toInstant() lanza UnsupportedOperationException: se usan los milisegundos
+		return fecha != null ? Instant.ofEpochMilli(fecha.getTime()).atZone(ZoneId.systemDefault()).toLocalDate() : null;
 	}
 
 	private String validateUniversityName(String univer) {

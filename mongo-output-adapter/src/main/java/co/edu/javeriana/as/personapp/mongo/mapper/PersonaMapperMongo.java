@@ -69,6 +69,17 @@ public class PersonaMapperMongo {
 		return person;
 	}
 
+	// Sin estudios ni teléfonos: lo usan los mappers hijos para evitar recursión infinita
+	public Person fromAdapterToDomainBasico(PersonaDocument personaDocument) {
+		Person person = new Person();
+		person.setIdentification(personaDocument.getId());
+		person.setFirstName(personaDocument.getNombre());
+		person.setLastName(personaDocument.getApellido());
+		person.setGender(validateGender(personaDocument.getGenero()));
+		person.setAge(validateAge(personaDocument.getEdad()));
+		return person;
+	}
+
 	private @NonNull Gender validateGender(String genero) {
 		return "F".equals(genero) ? Gender.FEMALE : "M".equals(genero) ? Gender.MALE : Gender.OTHER;
 	}
