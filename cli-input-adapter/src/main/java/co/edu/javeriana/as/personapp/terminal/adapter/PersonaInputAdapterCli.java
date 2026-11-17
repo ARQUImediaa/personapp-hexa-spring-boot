@@ -55,13 +55,13 @@ public class PersonaInputAdapterCli {
 	public void historial() {
 	    log.info("Into historial PersonaEntity in Input Adapter");
 	    personInputPort.findAll().stream()
-	        .map(personaMapperCli::fromDomainToAdapterCli)
+	        .map(personaMapperCli::fromDomainToAdapterCliDetalle)
 	        .forEach(System.out::println);
 	}
 
 	public void buscar(Integer cc) throws NoExistException {
 		Person person = personInputPort.findOne(cc);
-		System.out.println(personaMapperCli.fromDomainToAdapterCli(person));
+		System.out.println(personaMapperCli.fromDomainToAdapterCliDetalle(person));
 	}
 
 	public void crear(Person person) throws NoExistException {

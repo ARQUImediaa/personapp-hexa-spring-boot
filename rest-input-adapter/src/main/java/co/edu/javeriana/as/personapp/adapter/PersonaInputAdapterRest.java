@@ -51,7 +51,7 @@ public class PersonaInputAdapterRest {
 
 	public List<PersonaResponse> historial(String database) throws InvalidOptionException {
 		String db = setPersonOutputPortInjection(database);
-		return personInputPort.findAll().stream().map(persona -> mapearRespuesta(db, persona))
+		return personInputPort.findAll().stream().map(persona -> mapearRespuestaDetalle(db, persona))
 				.collect(Collectors.toList());
 	}
 
@@ -67,7 +67,7 @@ public class PersonaInputAdapterRest {
 	public PersonaResponse buscarPersona(String database, Integer identification)
 			throws InvalidOptionException, NoExistException {
 		String db = setPersonOutputPortInjection(database);
-		return mapearRespuesta(db, personInputPort.findOne(identification));
+		return mapearRespuestaDetalle(db, personInputPort.findOne(identification));
 	}
 
 	// PUT parcial: los campos que no vienen en el request conservan su valor actual
@@ -106,6 +106,12 @@ public class PersonaInputAdapterRest {
 		} catch (NoExistException e) {
 			return false;
 		}
+	}
+
+	// Consultas: igual que mapearRespuesta pero con teléfonos y estudios
+	private PersonaResponse mapearRespuestaDetalle(String database, Person person) {
+		String etiqueta = database.equalsIgnoreCase(DatabaseOption.MARIA.toString()) ? "MariaDB" : "MongoDB";
+		return personaMapperRest.fromDomainToAdapterRestDetalle(person, etiqueta);
 	}
 
 	// La etiqueta de la respuesta indica la base donde realmente quedó guardada la persona
